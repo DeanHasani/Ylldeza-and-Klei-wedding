@@ -117,6 +117,11 @@
   const smoke = $('[data-smoke]', calWrap);
   const units = $$('[data-unit]', calWrap);
 
+  // One heart shape for the whole sequence: drawn in the calendar, then carried into the date line
+  const HEART = 'M50 86 C24 68 4 52 5 31 C6 14 22 5 36 9 C44 12 48 19 50 25 C52 19 56 12 64 9 C78 5 94 14 95 31 C96 52 76 68 50 86 Z';
+  // The calendar 14 is scaled so it matches the date-line 14 at the moment the heart is handed over
+  const DAY_SCALE = 1.46;
+
   // Month grid (Monday first)
   const year = WEDDING.getFullYear(), month = 10; // November
   const leading = (new Date(year, month, 1).getDay() + 6) % 7;
@@ -132,8 +137,7 @@
     span.textContent = d;
     c.appendChild(span);
     if (d === WEDDING_DAY) {
-      c.insertAdjacentHTML('beforeend',
-        '<svg class="cal-heart" viewBox="0 0 100 92"><path d="M52 84 C26 66 6 50 7 30 C8 14 24 6 37 11 C45 14 49 21 51 27 C54 18 61 9 73 8 C88 7 96 20 93 35 C90 52 72 68 52 84 C49 86 45 83 44 80"/></svg>');
+      c.insertAdjacentHTML('beforeend', `<svg class="cal-heart" viewBox="0 0 100 92"><path d="${HEART}"/></svg>`);
       calHeart = c.lastElementChild;
       calHeartPath = calHeart.firstElementChild;
     }
@@ -141,7 +145,13 @@
     calGrid.appendChild(c);
   }
 
-  'Save the Date'.split('').forEach((ch, i) => {
+  // Dash = exact outline length, gap a little longer so no stray round cap shows before drawing starts
+  const heartLen = calHeartPath.getTotalLength();
+  const heartHidden = String(heartLen + 5);
+  calHeartPath.style.strokeDasharray = `${heartLen} ${heartLen + 10}`;
+  calHeartPath.style.strokeDashoffset = heartHidden;
+
+  'Ruajeni Datën'.split('').forEach((ch, i) => {
     const s = document.createElement('span');
     s.textContent = ch === ' ' ? ' ' : ch;
     s.setAttribute('aria-hidden', 'true');
@@ -164,14 +174,14 @@
         : !isDay && sd >= 2 ? 'opacity .8s ease, transform .8s ease'
         : 'opacity .4s ease, transform .6s cubic-bezier(.3,1.5,.5,1), color .9s ease 1.7s';
       s.opacity = shown ? '1' : '0';
-      s.transform = shown ? (isDay ? 'scale(1.55)' : 'none') : 'translateY(6px)';
+      s.transform = shown ? (isDay ? `scale(${DAY_SCALE})` : 'none') : 'translateY(6px)';
       s.color = isDay && heart ? '#F3ECDD' : '';
     }
     calWeek.style.opacity = sd >= 2 ? '0' : '';
     calWeek.style.borderBottomColor = sd >= 2 ? 'rgba(205,191,165,0)' : '';
     calLayer.style.visibility = sd >= 4 ? 'hidden' : '';
     calHeart.style.opacity = sd >= 3 ? '0' : '';
-    calHeartPath.style.strokeDashoffset = heart ? '0' : '';
+    calHeartPath.style.strokeDashoffset = heart ? '0' : heartHidden;
     calHeartPath.style.fill = heart ? '#1d2922' : '';
 
     const h = dateHeart.style;
@@ -274,6 +284,10 @@
     guestField.hidden = !(attending === 'yes' && plusOne);
   }
 
+  // Albanian message instead of the browser's own "please fill out this field"
+  nameInput.addEventListener('invalid', () => nameInput.setCustomValidity('Ju lutemi shkruani emrin tuaj.'));
+  nameInput.addEventListener('input', () => nameInput.setCustomValidity(''));
+
   optButtons.forEach(b => b.addEventListener('click', () => { attending = b.dataset.attending; renderForm(); }));
   addGuestBtn.addEventListener('click', () => { plusOne = true; renderForm(); });
   removeGuestBtn.addEventListener('click', () => { plusOne = false; guestInput.value = ''; renderForm(); });
@@ -281,13 +295,14 @@
   form.addEventListener('submit', e => {
     e.preventDefault();
     const name = nameInput.value.trim();
+    if (!name) { nameInput.value = ''; nameInput.reportValidity(); return; } // spaces only
     const rsvp = { name, attending, guest: attending === 'yes' && plusOne ? guestInput.value.trim() : '' };
     // Not wired to a backend yet — send `rsvp` to your form endpoint here.
     void rsvp;
     if (document.activeElement) document.activeElement.blur(); // close the mobile keyboard
     thanks.textContent = attending === 'yes'
-      ? `Thank you, ${name || 'friend'}. We can't wait to celebrate with you on 14 November.`
-      : `Thank you for letting us know, ${name || 'friend'}. You'll be missed.`;
+      ? `Faleminderit, ${name}! Mezi presim të festojmë së bashku më 14 nëntor.`
+      : `Faleminderit që na njoftuat, ${name}. Do të na mungoni.`;
     form.hidden = true;
     thanks.hidden = false;
   });

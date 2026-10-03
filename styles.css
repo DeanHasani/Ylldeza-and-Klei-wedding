@@ -154,7 +154,8 @@ main {
 .story-title {
   margin: 22px 0 0;
   font-family: 'Oranienbaum', serif; font-weight: 400;
-  font-size: min(11vw, 48px); line-height: 1; letter-spacing: .01em;
+  font-size: min(11vw, 48px); line-height: 1.05; letter-spacing: .01em;
+  text-wrap: balance;
 }
 .timeline { position: relative; margin-top: 26px; width: min(92vw, 380px); aspect-ratio: 360 / 300; }
 .timeline svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
@@ -192,7 +193,7 @@ main {
 .cal-week {
   display: grid; grid-template-columns: repeat(7, 1fr);
   font-family: 'Oranienbaum', serif; font-style: normal; font-size: 14px;
-  letter-spacing: .2em; color: var(--muted);
+  color: var(--muted);
   padding-bottom: 10px;
   border-bottom: 1px solid var(--cal-rule);
   transition: opacity .8s ease, border-color .8s ease;
@@ -210,16 +211,16 @@ main {
   opacity: 0; transform: translateY(6px);
   color: var(--evergreen);
 }
+/* Same 100×92 proportions and 14 placement as .date-heart, so the hand-over is invisible */
 .cal-heart {
   position: absolute; left: 50%; top: 50%;
-  width: 66px; height: 62px;
-  transform: translate(-50%, -45%);
+  width: 66px; height: 60.72px;
+  transform: translate(-50%, -49.8%);
   overflow: visible; pointer-events: none;
 }
 .cal-heart path {
   fill: rgba(29,41,34,0);
-  stroke: var(--evergreen); stroke-width: 2.2; stroke-linecap: round;
-  stroke-dasharray: 340; stroke-dashoffset: 340;
+  stroke: var(--evergreen); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round;
   transition: stroke-dashoffset 1.8s cubic-bezier(.6,.1,.3,1), fill .9s ease 1.7s;
 }
 
@@ -232,7 +233,7 @@ main {
 }
 .date-heart svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
 .date-heart span {
-  position: relative; margin-top: -10px;
+  position: relative; margin-top: 4px;
   font-family: 'Oranienbaum', serif; font-weight: 400; font-size: 46px; line-height: 1;
   color: var(--panna);
 }
@@ -332,7 +333,7 @@ main {
   max-width: 400px; margin: 0 auto;
   display: flex; flex-direction: column; align-items: center; text-align: center;
 }
-.rsvp h2 { margin: 0; font-family: 'Oranienbaum', serif; font-style: normal; font-size: min(10vw, 42px); font-weight: 400; line-height: 1.15; }
+.rsvp h2 { margin: 0; font-family: 'Oranienbaum', serif; font-style: normal; font-size: min(10vw, 42px); font-weight: 400; line-height: 1.15; text-wrap: balance; }
 .rsvp-form { margin-top: 28px; width: 100%; display: flex; flex-direction: column; gap: 16px; text-align: left; }
 .field { display: flex; flex-direction: column; gap: 8px; font-size: 10px; letter-spacing: .28em; }
 .guest-row { display: flex; gap: 8px; }
