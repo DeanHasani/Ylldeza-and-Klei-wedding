@@ -1,0 +1,297 @@
+/* Ylldëza & Klei — envelope, love-story path, save-the-date sequence, countdown, RSVP */
+(() => {
+  'use strict';
+
+  const $ = (sel, root = document) => root.querySelector(sel);
+  const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+
+  // 14 November 2026, 16:00 in Kukës (CET, UTC+1) — fixed offset so guests abroad see the right countdown
+  const WEDDING = new Date('2026-11-14T16:00:00+01:00');
+  const WEDDING_DAY = 14;
+  // The love story and calendar only start once the guest has actually scrolled
+  const SCROLL_START = 40;
+
+  /* ---------- 01 Envelope ---------- */
+  const envelope = $('[data-envelope]');
+  const loaded = img => img.decode
+    ? img.decode().catch(() => {})
+    : img.complete ? Promise.resolve() : new Promise(r => { img.onload = img.onerror = r; });
+
+  // Hold the sequence until the envelope art and handwriting font are in, so on a slow
+  // mobile connection the flap never opens before the pieces have painted.
+  const envReady = Promise.all([
+    ...$$('.env-back, .env-flap, .env-lace', envelope).map(loaded),
+    document.fonts ? document.fonts.load('34px "Great Vibes"').catch(() => {}) : null
+  ]);
+  Promise.race([envReady, wait(4000)]).then(() => {
+    envelope.classList.add('is-ready');
+    [[900, 's1'], [1450, 's2'], [2100, 's3'], [5300, 'opened']]
+      .forEach(([t, cls]) => setTimeout(() => envelope.classList.add(cls), t));
+  });
+
+  const toggleEnvelope = () => envelope.classList.toggle('opened');
+  envelope.addEventListener('click', toggleEnvelope);
+  envelope.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleEnvelope(); }
+  });
+
+  /* ---------- Scroll reveal ---------- */
+  const revealIO = new IntersectionObserver(entries => entries.forEach(e => {
+    if (!e.isIntersecting) return;
+    const el = e.target;
+    revealIO.unobserve(el);
+    const delay = +el.dataset.delay || 0;
+    if (el.hasAttribute('data-cal')) watchCal(el);
+    el.style.transitionDelay = delay + 'ms';
+    el.classList.add('is-in');
+    // drop the stagger afterwards so hover/press transitions respond instantly
+    setTimeout(() => { el.style.transitionDelay = ''; }, 2600 + delay);
+  }), { threshold: 0.25 });
+  $$('[data-reveal]').forEach(el => revealIO.observe(el));
+
+  /* ---------- 02 Our Love Story ---------- */
+  const timeline = $('[data-timeline]');
+  const pathA = $('[data-path-a]', timeline);
+  const pathB = $('[data-path-b]', timeline);
+  const mover = $('[data-mover]', timeline);
+  const items = $$('[data-item]', timeline);
+
+  const ease = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+  const tween = (dur, fn) => new Promise(r => {
+    const start = performance.now();
+    const step = now => {
+      const t = Math.min(1, Math.max(0, (now - start) / dur));
+      fn(t);
+      t < 1 ? requestAnimationFrame(step) : r();
+    };
+    requestAnimationFrame(step);
+  });
+
+  // The heart rides along the path while the line draws in behind it
+  const travel = async (path, dur) => {
+    const L = path.getTotalLength();
+    path.style.strokeDasharray = L;
+    path.style.strokeDashoffset = L;
+    const p0 = path.getPointAtLength(0);
+    mover.setAttribute('transform', `translate(${p0.x},${p0.y})`);
+    mover.style.opacity = '1';
+    await tween(dur, t => {
+      const e = ease(t);
+      const p = path.getPointAtLength(L * e);
+      mover.setAttribute('transform', `translate(${p.x},${p.y})`);
+      path.style.strokeDashoffset = L * (1 - e);
+    });
+  };
+
+  let storyRan = false;
+  async function runStory() {
+    if (storyRan) return;
+    storyRan = true;
+    items[0].classList.add('is-in'); await wait(1000);
+    await travel(pathA, 1700);
+    mover.style.opacity = '0'; items[1].classList.add('is-in'); await wait(1100);
+    await travel(pathB, 1400);
+    mover.style.opacity = '0'; items[2].classList.add('is-in');
+  }
+
+  const storyIO = new IntersectionObserver(es => es.forEach(e => {
+    if (e.isIntersecting) { storyIO.disconnect(); runStory(); }
+  }), { threshold: 0.35 });
+
+  const onFirstScroll = () => {
+    if (window.scrollY < SCROLL_START) return;
+    window.removeEventListener('scroll', onFirstScroll);
+    storyIO.observe(timeline);
+  };
+  window.addEventListener('scroll', onFirstScroll, { passive: true });
+  onFirstScroll();
+
+  /* ---------- 04 Save the Date ---------- */
+  const calWrap = $('[data-cal]');
+  const calLayer = $('[data-cal-layer]', calWrap);
+  const calWeek = $('[data-cal-week]', calWrap);
+  const calGrid = $('[data-cal-grid]', calWrap);
+  const dateHeart = $('[data-date-heart]', calWrap);
+  const dateText = $('[data-date-text]', calWrap);
+  const smoke = $('[data-smoke]', calWrap);
+  const units = $$('[data-unit]', calWrap);
+
+  // Month grid (Monday first)
+  const year = WEDDING.getFullYear(), month = 10; // November
+  const leading = (new Date(year, month, 1).getDay() + 6) % 7;
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const days = [];
+  let calHeart, calHeartPath;
+  const cell = () => { const c = document.createElement('div'); c.className = 'cal-cell'; return c; };
+  for (let i = 0; i < leading; i++) calGrid.appendChild(cell());
+  for (let d = 1; d <= daysInMonth; d++) {
+    const c = cell();
+    const span = document.createElement('span');
+    span.className = 'cal-day';
+    span.textContent = d;
+    c.appendChild(span);
+    if (d === WEDDING_DAY) {
+      c.insertAdjacentHTML('beforeend',
+        '<svg class="cal-heart" viewBox="0 0 100 92"><path d="M52 84 C26 66 6 50 7 30 C8 14 24 6 37 11 C45 14 49 21 51 27 C54 18 61 9 73 8 C88 7 96 20 93 35 C90 52 72 68 52 84 C49 86 45 83 44 80"/></svg>');
+      calHeart = c.lastElementChild;
+      calHeartPath = calHeart.firstElementChild;
+    }
+    days.push(span);
+    calGrid.appendChild(c);
+  }
+
+  'Save the Date'.split('').forEach((ch, i) => {
+    const s = document.createElement('span');
+    s.textContent = ch === ' ' ? ' ' : ch;
+    s.setAttribute('aria-hidden', 'true');
+    s.style.setProperty('--i', i);
+    s.style.setProperty('--dx', (i % 2 ? 10 : -10) + 'px');
+    smoke.appendChild(s);
+  });
+
+  // step: days counted so far · sd: sequence stage · heart: 14 circled & filled
+  // flip/moved: the 14+heart travelling from the grid into the date line
+  const cal = { step: 0, sd: 0, heart: false, flip: null, moved: false };
+
+  function renderCal() {
+    const { step, sd, heart, flip, moved } = cal;
+    for (let d = 1; d <= WEDDING_DAY; d++) {
+      const s = days[d - 1].style;
+      const isDay = d === WEDDING_DAY;
+      const shown = step >= d && (isDay ? sd < 3 : sd < 2);
+      s.transition = isDay && sd >= 3 ? 'none'
+        : !isDay && sd >= 2 ? 'opacity .8s ease, transform .8s ease'
+        : 'opacity .4s ease, transform .6s cubic-bezier(.3,1.5,.5,1), color .9s ease 1.7s';
+      s.opacity = shown ? '1' : '0';
+      s.transform = shown ? (isDay ? 'scale(1.55)' : 'none') : 'translateY(6px)';
+      s.color = isDay && heart ? '#F3ECDD' : '';
+    }
+    calWeek.style.opacity = sd >= 2 ? '0' : '';
+    calWeek.style.borderBottomColor = sd >= 2 ? 'rgba(205,191,165,0)' : '';
+    calLayer.style.visibility = sd >= 4 ? 'hidden' : '';
+    calHeart.style.opacity = sd >= 3 ? '0' : '';
+    calHeartPath.style.strokeDashoffset = heart ? '0' : '';
+    calHeartPath.style.fill = heart ? '#1d2922' : '';
+
+    const h = dateHeart.style;
+    if (sd < 3 || !flip) {
+      h.opacity = ''; h.transform = ''; h.transition = '';
+    } else {
+      h.opacity = '1';
+      h.transform = moved ? 'none' : `translate(${flip.dx}px,${flip.dy}px) scale(${flip.s})`;
+      h.transition = moved ? 'transform 1.4s cubic-bezier(.65,0,.25,1)' : 'none';
+    }
+    dateText.classList.toggle('is-in', moved);
+    smoke.classList.toggle('is-in', sd >= 4);
+    units.forEach((u, i) => u.classList.toggle('is-in', sd >= 5 + i));
+  }
+
+  // FLIP: drop the big heart exactly over the calendar's 14, then let it glide home
+  function flipHeart() {
+    const r1 = calHeart.getBoundingClientRect();
+    const r2 = dateHeart.getBoundingClientRect();
+    cal.flip = {
+      dx: r1.left + r1.width / 2 - (r2.left + r2.width / 2),
+      dy: r1.top + r1.height / 2 - (r2.top + r2.height / 2),
+      s: r1.width / r2.width
+    };
+    cal.sd = 3; cal.moved = false;
+    renderCal();
+    requestAnimationFrame(() => requestAnimationFrame(() => { cal.moved = true; renderCal(); }));
+  }
+
+  let calIO = null, calTimer = null, onCalScroll = null;
+
+  function watchCal(el) {
+    if (calIO) return;
+    const go = () => {
+      if (calTimer) return;
+      calIO.disconnect();
+      window.removeEventListener('scroll', onCalScroll);
+      startCal();
+    };
+    calIO = new IntersectionObserver(es => es.forEach(e => {
+      if (e.isIntersecting && window.scrollY > SCROLL_START) go();
+    }), { threshold: 0.7 });
+    calIO.observe(el);
+    onCalScroll = () => {
+      const r = el.getBoundingClientRect();
+      if (window.scrollY > SCROLL_START && r.top < window.innerHeight * 0.6 && r.bottom > 0) go();
+    };
+    window.addEventListener('scroll', onCalScroll, { passive: true });
+  }
+
+  function startCal() {
+    calTimer = setInterval(() => {
+      cal.step += 1;
+      renderCal();
+      if (cal.step < WEDDING_DAY) return;
+      clearInterval(calTimer);
+      setTimeout(() => { cal.heart = true; renderCal(); }, 450);
+      [[3300, 2], [4300, 'flip'], [6400, 4], [8000, 5], [8400, 6], [8800, 7], [9200, 8]]
+        .forEach(([t, v]) => setTimeout(() => {
+          if (v === 'flip') flipHeart();
+          else { cal.sd = v; renderCal(); }
+        }, t));
+    }, 130);
+  }
+
+  /* ---------- Countdown ---------- */
+  const cdEls = Object.fromEntries($$('[data-cd]').map(el => [el.dataset.cd, el]));
+  const pad = n => String(n).padStart(2, '0');
+  function tick() {
+    const s = Math.max(0, Math.floor((WEDDING - Date.now()) / 1000));
+    const v = {
+      days: pad(Math.floor(s / 86400)),
+      hours: pad(Math.floor(s % 86400 / 3600)),
+      minutes: pad(Math.floor(s % 3600 / 60)),
+      seconds: pad(s % 60)
+    };
+    for (const k in v) if (cdEls[k].textContent !== v[k]) cdEls[k].textContent = v[k];
+  }
+  tick();
+  setInterval(tick, 1000);
+
+  /* ---------- 06 RSVP ---------- */
+  const form = $('[data-rsvp-form]');
+  const thanks = $('[data-thanks]');
+  const nameInput = $('input[name="name"]', form);
+  const guestInput = $('input[name="guest"]', form);
+  const optButtons = $$('[data-attending]', form);
+  const addGuestBtn = $('[data-add-guest]', form);
+  const guestField = $('[data-guest-field]', form);
+  const removeGuestBtn = $('[data-remove-guest]', form);
+  let attending = 'yes', plusOne = false;
+
+  function renderForm() {
+    optButtons.forEach(b => {
+      const on = b.dataset.attending === attending;
+      b.classList.toggle('is-on', on);
+      b.setAttribute('aria-pressed', String(on));
+    });
+    addGuestBtn.hidden = !(attending === 'yes' && !plusOne);
+    guestField.hidden = !(attending === 'yes' && plusOne);
+  }
+
+  optButtons.forEach(b => b.addEventListener('click', () => { attending = b.dataset.attending; renderForm(); }));
+  addGuestBtn.addEventListener('click', () => { plusOne = true; renderForm(); });
+  removeGuestBtn.addEventListener('click', () => { plusOne = false; guestInput.value = ''; renderForm(); });
+
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const name = nameInput.value.trim();
+    const rsvp = { name, attending, guest: attending === 'yes' && plusOne ? guestInput.value.trim() : '' };
+    // Not wired to a backend yet — send `rsvp` to your form endpoint here.
+    void rsvp;
+    if (document.activeElement) document.activeElement.blur(); // close the mobile keyboard
+    thanks.textContent = attending === 'yes'
+      ? `Thank you, ${name || 'friend'}. We can't wait to celebrate with you on 14 November.`
+      : `Thank you for letting us know, ${name || 'friend'}. You'll be missed.`;
+    form.hidden = true;
+    thanks.hidden = false;
+  });
+
+  renderCal();
+  renderForm();
+})();

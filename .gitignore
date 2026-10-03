@@ -1,0 +1,11 @@
+# Design reference (not part of the site)
+Wedding.dc.html
+
+# Handoff images the page doesn't use
+assets/flowers.png
+assets/fill-*.png
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
