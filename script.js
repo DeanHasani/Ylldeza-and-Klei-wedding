@@ -52,10 +52,37 @@
 
   /* ---------- 02 Our Love Story ---------- */
   const timeline = $('[data-timeline]');
-  const pathA = $('[data-path-a]', timeline);
-  const pathB = $('[data-path-b]', timeline);
+  const tlSvg = $('svg', timeline);
+  const paths = $$('[data-path]', timeline);
   const mover = $('[data-mover]', timeline);
   const items = $$('[data-item]', timeline);
+  const years = $$('[data-year]', timeline);
+
+  // Each line leaves the right side of one year and lands on the left side of the next.
+  // Built from layout offsets (not bounding boxes) so the items' pre-reveal nudge doesn't skew it.
+  const yearAnchor = (item, year) => {
+    const range = document.createRange();
+    range.selectNodeContents(year);
+    const half = range.getBoundingClientRect().width / 2;
+    const cx = item.offsetLeft; // items are centred on their left: N% via translate(-50%)
+    return { left: cx - half, right: cx + half, y: item.offsetTop + year.offsetTop + year.offsetHeight / 2 };
+  };
+  let laidOutWidth = 0;
+  function layoutPaths() {
+    const w = timeline.clientWidth, h = timeline.clientHeight;
+    if (!w || w === laidOutWidth) return;
+    laidOutWidth = w;
+    tlSvg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+    paths.forEach((p, i) => {
+      const a = yearAnchor(items[i], years[i]), b = yearAnchor(items[i + 1], years[i + 1]);
+      const x0 = a.right + 4, x1 = b.left - 4, k = (x1 - x0) * .78;
+      p.setAttribute('d', `M${x0} ${a.y} C ${x0 + k} ${a.y}, ${x1 - k} ${b.y}, ${x1} ${b.y}`);
+    });
+  }
+  layoutPaths();
+  if (document.fonts) document.fonts.ready.then(() => { laidOutWidth = 0; layoutPaths(); });
+  let layoutFrame;
+  window.addEventListener('resize', () => { cancelAnimationFrame(layoutFrame); layoutFrame = requestAnimationFrame(layoutPaths); });
 
   const ease = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
   const tween = (dur, fn) => new Promise(r => {
@@ -88,11 +115,16 @@
   async function runStory() {
     if (storyRan) return;
     storyRan = true;
-    items[0].classList.add('is-in'); await wait(1000);
-    await travel(pathA, 1700);
-    mover.style.opacity = '0'; items[1].classList.add('is-in'); await wait(1100);
-    await travel(pathB, 1400);
-    mover.style.opacity = '0'; items[2].classList.add('is-in');
+    laidOutWidth = 0; layoutPaths();
+    const pause = [1000, 1100, 1100], draw = [1500, 1200, 1400];
+    items[0].classList.add('is-in');
+    for (let i = 0; i < paths.length; i++) {
+      await wait(pause[i]);
+      await travel(paths[i], draw[i]);
+      paths[i].style.strokeDasharray = 'none'; // stays fully drawn if the layout changes later
+      mover.style.opacity = '0';
+      items[i + 1].classList.add('is-in');
+    }
   }
 
   const storyIO = new IntersectionObserver(es => es.forEach(e => {
@@ -116,6 +148,7 @@
   const dateText = $('[data-date-text]', calWrap);
   const smoke = $('[data-smoke]', calWrap);
   const units = $$('[data-unit]', calWrap);
+  const colons = $$('[data-colon]', calWrap);
 
   // One heart shape for the whole sequence: drawn in the calendar, then carried into the date line
   const HEART = 'M50 86 C24 68 4 52 5 31 C6 14 22 5 36 9 C44 12 48 19 50 25 C52 19 56 12 64 9 C78 5 94 14 95 31 C96 52 76 68 50 86 Z';
@@ -195,6 +228,7 @@
     dateText.classList.toggle('is-in', moved);
     smoke.classList.toggle('is-in', sd >= 4);
     units.forEach((u, i) => u.classList.toggle('is-in', sd >= 5 + i));
+    colons.forEach((c, i) => c.classList.toggle('is-in', sd >= 6 + i)); // arrives with the unit after it
   }
 
   // FLIP: drop the big heart exactly over the calendar's 14, then let it glide home

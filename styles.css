@@ -150,28 +150,29 @@ main {
 }
 .story-text { font-family: 'Poppins', sans-serif; font-size: min(3.8vw, 16px); line-height: 1.5; text-wrap: balance; }
 .story-intro { margin: 0; max-width: 420px; }
-.story-outro { margin: -6px 0 0; max-width: 380px; }
+.story-outro { margin: 26px 0 0; max-width: 380px; }
 .story-title {
   margin: 22px 0 0;
   font-family: 'Oranienbaum', serif; font-weight: 400;
   font-size: min(11vw, 48px); line-height: 1.05; letter-spacing: .01em;
   text-wrap: balance;
 }
-.timeline { position: relative; margin-top: 26px; width: min(92vw, 380px); aspect-ratio: 360 / 300; }
+/* Four steps in a wave: item tops are set inline in index.html as % of this box */
+.timeline { position: relative; margin-top: 26px; width: min(92vw, 380px); aspect-ratio: 360 / 212; }
 .timeline svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
 .tl-path { fill: none; stroke: var(--line); stroke-width: 2.6; stroke-linecap: round; stroke-dasharray: 1000; stroke-dashoffset: 1000; }
 .tl-mover { opacity: 0; transition: opacity .35s ease; }
 .tl-item {
-  position: absolute; width: 30%;
+  position: absolute; width: 25%;
   display: flex; flex-direction: column; align-items: center; text-align: center;
   opacity: 0; transform: translate(-50%, 12px);
   transition: opacity .9s ease, transform .9s ease;
 }
 .tl-item.is-in { opacity: 1; transform: translate(-50%, 0); }
-.tl-icon { width: 100%; height: min(19vw, 74px); display: flex; align-items: flex-end; justify-content: center; }
-.tl-icon img { max-width: 80%; max-height: 78%; display: block; }
-.tl-icon-full img { max-width: 100%; max-height: 100%; }
-.tl-year { margin-top: 4px; font-family: 'Oranienbaum', serif; font-size: min(7.4vw, 30px); line-height: 1; }
+.tl-icon { width: 100%; height: min(15vw, 58px); display: flex; align-items: flex-end; justify-content: center; }
+.tl-icon img { max-width: 90%; max-height: 100%; display: block; }
+.tl-icon-wide img { max-height: 84%; } /* the table scene is wider, so it reads heavier at full height */
+.tl-year { margin-top: 4px; font-family: 'Oranienbaum', serif; font-size: min(6.4vw, 26px); line-height: 1; }
 .tl-label { margin-top: 4px; font-family: 'Poppins', sans-serif; font-size: min(3.2vw, 13px); line-height: 1.2; white-space: nowrap; }
 
 /* ---------- 04 Save the Date ---------- */
@@ -268,14 +269,23 @@ main {
 
 .countdown {
   margin-top: 18px; width: 100%;
-  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); column-gap: 4px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: start;
+  column-gap: 2px;
 }
-.unit {
-  display: flex; flex-direction: column; align-items: center;
+.unit, .unit-colon {
   opacity: 0; transform: translateY(16px);
   transition: opacity .8s ease, transform .9s cubic-bezier(.22,1,.36,1);
 }
-.unit.is-in { opacity: 1; transform: none; }
+.unit { display: flex; flex-direction: column; align-items: center; }
+.unit.is-in, .unit-colon.is-in { opacity: 1; transform: none; }
+.unit-colon {
+  font-family: 'Oranienbaum', serif; font-weight: 400;
+  font-size: min(11vw, 50px); line-height: 1;
+}
+/* the colon's dots centre on x-height; lift them to the middle of the taller digits */
+.unit-colon.is-in { transform: translateY(-.09em); }
 .unit-num {
   font-family: 'Oranienbaum', serif; font-style: normal; font-weight: 400;
   font-size: min(11vw, 50px); line-height: 1;
