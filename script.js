@@ -184,7 +184,7 @@
   calHeartPath.style.strokeDasharray = `${heartLen} ${heartLen + 10}`;
   calHeartPath.style.strokeDashoffset = heartHidden;
 
-  'Ruajeni Datën'.split('').forEach((ch, i) => {
+  'Festa fillon për'.split('').forEach((ch, i) => {
     const s = document.createElement('span');
     s.textContent = ch === ' ' ? ' ' : ch;
     s.setAttribute('aria-hidden', 'true');
