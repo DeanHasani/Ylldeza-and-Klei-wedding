@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="sq">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Përgjigjet · Ylldëza &amp; Klei</title>
+<meta name="theme-color" content="#E9DFD0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 92'%3E%3Cpath d='M50 86 C24 68 4 52 5 31 C6 14 22 5 36 9 C44 12 48 19 50 25 C52 19 56 12 64 9 C78 5 94 14 95 31 C96 52 76 68 50 86 Z' fill='%231d2922'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500&family=Oranienbaum&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --evergreen: #1d2922;
+    --evergreen-dark: #121A15;
+    --panna: #F3ECDD;
+    --muted: #4F6358;
+    --border: #8A9A8F;
+    --rule: #CDBFA5;
+    --error: #9b2c2c;
+  }
+  html, body { margin: 0; background: var(--panna); color: var(--evergreen); -webkit-font-smoothing: antialiased; }
+  body { font-family: 'Poppins', sans-serif; font-weight: 300; min-height: 100vh; }
+  *, *::before, *::after { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+
+  .wrap { max-width: 760px; margin: 0 auto; padding: 56px 16px 72px; }
+  h1 { margin: 0; text-align: center; font-family: 'Oranienbaum', serif; font-weight: 400; font-size: min(10vw, 42px); line-height: 1.15; }
+  .sub { margin: 8px 0 0; text-align: center; font-size: 11px; letter-spacing: .28em; color: var(--muted); }
+
+  button, input { -webkit-appearance: none; appearance: none; border-radius: 0; margin: 0; font-family: inherit; }
+  .input {
+    min-height: 48px; padding: 0 14px; width: 100%;
+    background: rgba(255,255,255,.35); border: 1px solid var(--border);
+    color: var(--evergreen); font-size: 16px; outline: none;
+  }
+  .input:focus { border-color: var(--evergreen); }
+  .btn {
+    min-height: 48px; padding: 0 20px;
+    background: var(--evergreen); color: var(--panna); border: 1px solid var(--evergreen);
+    font-size: 12px; letter-spacing: .26em; cursor: pointer; transition: background .3s;
+  }
+  .btn.ghost { background: transparent; color: var(--evergreen); border-color: var(--border); }
+  .btn:disabled { opacity: .6; cursor: default; }
+  @media (hover: hover) {
+    .btn:not(.ghost):not(:disabled):hover { background: var(--evergreen-dark); }
+    .btn.ghost:hover { border-color: var(--evergreen); }
+  }
+
+  .login { max-width: 340px; margin: 36px auto 0; display: flex; flex-direction: column; gap: 14px; }
+  .msg { margin: 0; text-align: center; font-size: 13px; line-height: 1.5; }
+  .msg.error { color: var(--error); }
+
+  .stats { margin-top: 36px; display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+  .stat { padding: 18px 8px; text-align: center; }
+  .stat + .stat { border-left: 1px solid var(--rule); }
+  .stat b { display: block; font-family: 'Oranienbaum', serif; font-weight: 400; font-size: 34px; line-height: 1; font-variant-numeric: tabular-nums; }
+  .stat span { display: block; margin-top: 8px; font-size: 10px; letter-spacing: .2em; color: var(--muted); }
+
+  .bar { margin-top: 24px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
+  .filters { display: flex; gap: 6px; }
+  .filters .btn { min-height: 40px; padding: 0 14px; font-size: 11px; letter-spacing: .18em; }
+  .filters .btn[aria-pressed="false"] { background: transparent; color: var(--evergreen); border-color: var(--border); }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+  .table-wrap { margin-top: 16px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { text-align: left; font-weight: 400; font-size: 10px; letter-spacing: .2em; color: var(--muted); padding: 10px 12px; border-bottom: 1px solid var(--evergreen); white-space: nowrap; }
+  td { padding: 12px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  td.date { white-space: nowrap; color: var(--muted); font-size: 12px; }
+  .pill { display: inline-block; min-width: 32px; padding: 2px 8px; font-size: 12px; text-align: center; border: 1px solid var(--evergreen); }
+  .pill.yes { background: var(--evergreen); color: var(--panna); }
+  .empty { padding: 32px 12px; text-align: center; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Përgjigjet</h1>
+  <p class="sub">YLLDËZA &amp; KLEI · 14 NËNTOR 2026</p>
+
+  <form class="login" data-login>
+    <input class="input" type="password" name="key" required placeholder="Fjalëkalimi" autocomplete="current-password">
+    <button class="btn" type="submit">HYR</button>
+    <p class="msg error" data-login-error hidden></p>
+  </form>
+
+  <section data-results hidden>
+    <div class="stats">
+      <div class="stat"><b data-stat="people">0</b><span>PERSONA VIJNË</span></div>
+      <div class="stat"><b data-stat="yes">0</b><span>PO</span></div>
+      <div class="stat"><b data-stat="no">0</b><span>JO</span></div>
+    </div>
+
+    <div class="bar">
+      <div class="filters" role="group" aria-label="Filtro">
+        <button class="btn" type="button" data-filter="all" aria-pressed="true">TË GJITHË</button>
+        <button class="btn" type="button" data-filter="Po" aria-pressed="false">PO</button>
+        <button class="btn" type="button" data-filter="Jo" aria-pressed="false">JO</button>
+      </div>
+      <div class="actions">
+        <button class="btn" type="button" data-export>SHKARKO EXCEL</button>
+        <button class="btn ghost" type="button" data-refresh>RIFRESKO</button>
+        <button class="btn ghost" type="button" data-logout>DIL</button>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>EMRI</th><th>VJEN?</th><th>SHOQËRUESI</th><th class="num">NR.</th><th>DATA</th></tr></thead>
+        <tbody data-rows></tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<script src="../config.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" defer></script>
+<script>
+(() => {
+  'use strict';
+  const $ = s => document.querySelector(s);
+  const login = $('[data-login]');
+  const keyInput = login.elements.key;
+  const loginBtn = $('button', login);
+  const loginError = $('[data-login-error]');
+  const results = $('[data-results]');
+  const tbody = $('[data-rows]');
+  const refreshBtn = $('[data-refresh]');
+  const filterBtns = document.querySelectorAll('[data-filter]');
+  const STORE = 'yk-admin-key';
+  let rows = [], filter = 'all', key = '';
+
+  const store = {
+    get() { try { return sessionStorage.getItem(STORE) || ''; } catch { return ''; } },
+    set(v) { try { v ? sessionStorage.setItem(STORE, v) : sessionStorage.removeItem(STORE); } catch {} }
+  };
+
+  const fmtDate = iso => {
+    const d = new Date(iso);
+    if (isNaN(d)) return iso;
+    const p = n => String(n).padStart(2, '0');
+    return `${p(d.getDate())}.${p(d.getMonth() + 1)}.${d.getFullYear()} ${p(d.getHours())}:${p(d.getMinutes())}`;
+  };
+
+  async function load() {
+    if (!RSVP_URL) throw new Error('config');
+    const res = await fetch(`${RSVP_URL}?key=${encodeURIComponent(key)}`);
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    rows = data.rows.slice().reverse(); // newest first
+    render();
+  }
+
+  function render() {
+    const yes = rows.filter(r => r.attending === 'Po');
+    $('[data-stat="people"]').textContent = yes.reduce((n, r) => n + r.count, 0);
+    $('[data-stat="yes"]').textContent = yes.length;
+    $('[data-stat="no"]').textContent = rows.length - yes.length;
+    filterBtns.forEach(b => b.setAttribute('aria-pressed', String(b.dataset.filter === filter)));
+
+    const shown = filter === 'all' ? rows : rows.filter(r => r.attending === filter);
+    tbody.replaceChildren();
+    if (!shown.length) {
+      const tr = tbody.insertRow();
+      const td = tr.insertCell();
+      td.colSpan = 5; td.className = 'empty';
+      td.textContent = rows.length ? 'Asnjë përgjigje në këtë filtër.' : 'Ende nuk ka përgjigje.';
+      return;
+    }
+    for (const r of shown) {
+      const tr = tbody.insertRow();
+      tr.insertCell().textContent = r.name;
+      const pill = document.createElement('span');
+      pill.className = 'pill' + (r.attending === 'Po' ? ' yes' : '');
+      pill.textContent = r.attending;
+      tr.insertCell().append(pill);
+      tr.insertCell().textContent = r.guest || '—';
+      const n = tr.insertCell(); n.className = 'num'; n.textContent = r.count;
+      const d = tr.insertCell(); d.className = 'date'; d.textContent = fmtDate(r.date);
+    }
+  }
+
+  function showError(err) {
+    loginError.textContent =
+      err.message === 'key' ? 'Fjalëkalimi është i gabuar.'
+      : err.message === 'config' ? 'RSVP_URL nuk është vendosur ende në config.js.'
+      : 'Nuk u lidh dot. Kontrolloni internetin dhe provoni përsëri.';
+    loginError.hidden = false;
+  }
+
+  async function enter() {
+    loginBtn.disabled = true;
+    loginError.hidden = true;
+    try {
+      await load();
+      store.set(key);
+      login.hidden = true;
+      results.hidden = false;
+    } catch (err) {
+      store.set('');
+      showError(err);
+    } finally {
+      loginBtn.disabled = false;
+    }
+  }
+
+  login.addEventListener('submit', e => {
+    e.preventDefault();
+    key = keyInput.value;
+    enter();
+  });
+
+  refreshBtn.addEventListener('click', async () => {
+    refreshBtn.disabled = true;
+    refreshBtn.textContent = 'DUKE NGARKUAR…';
+    try { await load(); }
+    catch (err) { results.hidden = true; login.hidden = false; showError(err); }
+    finally { refreshBtn.disabled = false; refreshBtn.textContent = 'RIFRESKO'; }
+  });
+
+  $('[data-logout]').addEventListener('click', () => {
+    store.set('');
+    key = ''; rows = []; filter = 'all';
+    tbody.replaceChildren();
+    keyInput.value = '';
+    loginError.hidden = true;
+    results.hidden = true;
+    login.hidden = false;
+  });
+
+  filterBtns.forEach(b => b.addEventListener('click', () => { filter = b.dataset.filter; render(); }));
+
+  $('[data-export]').addEventListener('click', () => {
+    if (!window.XLSX) return alert('Excel nuk u ngarkua ende. Provoni përsëri pas pak.');
+    const sheet = XLSX.utils.aoa_to_sheet([
+      ['Emri', 'Vjen?', 'Shoqëruesi', 'Nr. personash', 'Data'],
+      ...rows.slice().reverse().map(r => [r.name, r.attending, r.guest, r.count, fmtDate(r.date)])
+    ]);
+    sheet['!cols'] = [{ wch: 28 }, { wch: 8 }, { wch: 28 }, { wch: 14 }, { wch: 18 }];
+    const book = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(book, sheet, 'Përgjigjet');
+    XLSX.writeFile(book, 'RSVP-Ylldeza-Klei.xlsx');
+  });
+
+  // Stay signed in while this tab is open
+  key = store.get();
+  if (key) enter();
+})();
+</script>
+</body>
+</html>

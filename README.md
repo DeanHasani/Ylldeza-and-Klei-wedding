@@ -22,4 +22,5 @@ Open `index.html` in a browser, or serve the folder with any static server.
 ## Notes
 
 - The countdown targets 14 Nov 2026, 16:00 Kukës time (UTC+1). It is set by `WEDDING` in `script.js`.
-- The RSVP form is not connected to a backend yet. To connect a form service, send the `rsvp` object from the submit handler in `script.js`.
+- RSVP answers are saved to a Google Sheet through `google-apps-script.gs`. Paste that script into the sheet (Extensions → Apps Script), deploy it as a Web app (Execute as: Me, Who has access: Anyone), and put the web-app URL in `RSVP_URL` in `config.js`. While `RSVP_URL` is empty, the form still works but saves nothing.
+- `/download` (`download/index.html`) is a password-protected page that lists the answers with totals and downloads them as an `.xlsx`. The password is the `ADMIN_KEY` script property in Apps Script (Project Settings → Script properties); it is checked by Google, not stored in this repo.

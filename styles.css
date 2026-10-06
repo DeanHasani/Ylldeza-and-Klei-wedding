@@ -401,5 +401,7 @@ main {
   .btn-send:hover { background: var(--evergreen-dark); }
 }
 .btn-send:active { background: var(--evergreen-dark); }
+.btn-send:disabled { opacity: .6; cursor: default; }
+.send-error { margin: 0; font-size: 13px; line-height: 1.5; text-align: center; color: #9b2c2c; }
 
 .thanks { margin: 24px 0 0; font-size: 15px; line-height: 1.7; max-width: 300px; }

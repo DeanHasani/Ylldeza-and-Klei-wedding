@@ -299,7 +299,10 @@
 
   /* ---------- 06 RSVP ---------- */
   const form = $('[data-rsvp-form]');
+  const rsvpTitle = $('[data-rsvp-title]');
   const thanks = $('[data-thanks]');
+  const sendBtn = $('.btn-send', form);
+  const sendError = $('[data-send-error]', form);
   const nameInput = $('input[name="name"]', form);
   const guestInput = $('input[name="guest"]', form);
   const optButtons = $$('[data-attending]', form);
@@ -326,17 +329,32 @@
   addGuestBtn.addEventListener('click', () => { plusOne = true; renderForm(); });
   removeGuestBtn.addEventListener('click', () => { plusOne = false; guestInput.value = ''; renderForm(); });
 
-  form.addEventListener('submit', e => {
+  form.addEventListener('submit', async e => {
     e.preventDefault();
     const name = nameInput.value.trim();
     if (!name) { nameInput.value = ''; nameInput.reportValidity(); return; } // spaces only
     const rsvp = { name, attending, guest: attending === 'yes' && plusOne ? guestInput.value.trim() : '' };
-    // Not wired to a backend yet — send `rsvp` to your form endpoint here.
-    void rsvp;
     if (document.activeElement) document.activeElement.blur(); // close the mobile keyboard
+
+    if (RSVP_URL) {
+      sendBtn.disabled = true;
+      sendBtn.textContent = 'DUKE DËRGUAR…';
+      sendError.hidden = true;
+      try {
+        // no-cors: Apps Script doesn't send CORS headers, so the reply is opaque — only network failures reject
+        await fetch(RSVP_URL, { method: 'POST', mode: 'no-cors', body: new URLSearchParams(rsvp) });
+      } catch {
+        sendBtn.disabled = false;
+        sendBtn.textContent = 'DËRGO';
+        sendError.hidden = false;
+        return;
+      }
+    }
+
+    rsvpTitle.textContent = attending === 'yes' ? 'Faleminderit!' : 'Do të na mungoni';
     thanks.textContent = attending === 'yes'
       ? `Faleminderit, ${name}! Mezi presim të festojmë së bashku më 14 nëntor.`
-      : `Faleminderit që na njoftuat, ${name}. Do të na mungoni.`;
+      : `Na vjen keq që nuk do të jeni me ne, ${name}. Faleminderit që na njoftuat.`;
     form.hidden = true;
     thanks.hidden = false;
   });

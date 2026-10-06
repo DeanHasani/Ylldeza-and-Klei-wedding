@@ -133,7 +133,7 @@
   <section class="rsvp">
     <img class="lace lace-top-flip" src="assets/lace-trim.png" alt="">
     <div class="rsvp-inner">
-      <h2 class="reveal" data-reveal>Do të na bashkoheni?</h2>
+      <h2 class="reveal" data-reveal data-rsvp-title>Do të na bashkoheni?</h2>
       <form class="rsvp-form" data-rsvp-form>
         <label class="field">EMRI I PLOTË
           <input class="input" name="name" required placeholder="Emri juaj" autocomplete="name">
@@ -150,12 +150,14 @@
           </span>
         </label>
         <button type="submit" class="btn-send">DËRGO</button>
+        <p class="send-error" data-send-error hidden>Përgjigja nuk u dërgua. Kontrolloni internetin dhe provoni përsëri.</p>
       </form>
       <p class="thanks" data-thanks hidden></p>
     </div>
   </section>
 
 </main>
+<script src="config.js"></script>
 <script src="script.js"></script>
 </body>
 </html>
