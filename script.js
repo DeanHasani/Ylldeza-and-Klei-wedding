@@ -116,7 +116,7 @@
     if (storyRan) return;
     storyRan = true;
     laidOutWidth = 0; layoutPaths();
-    const pause = [1000, 1100, 1100], draw = [1500, 1200, 1400];
+    const pause = [1000, 1100], draw = [1700, 1400];
     items[0].classList.add('is-in');
     for (let i = 0; i < paths.length; i++) {
       await wait(pause[i]);

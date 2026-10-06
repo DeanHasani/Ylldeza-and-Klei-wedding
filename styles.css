@@ -157,23 +157,22 @@ main {
   font-size: min(11vw, 48px); line-height: 1.05; letter-spacing: .01em;
   text-wrap: balance;
 }
-/* Four steps in a wave: item tops are set inline in index.html as % of this box */
-.timeline { position: relative; margin-top: 26px; width: min(92vw, 380px); aspect-ratio: 360 / 212; }
+/* Three steps in a wave: item tops are set inline in index.html as % of this box */
+.timeline { position: relative; margin-top: 26px; width: min(92vw, 380px); aspect-ratio: 360 / 220; }
 .timeline svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
 .tl-path { fill: none; stroke: var(--line); stroke-width: 2.6; stroke-linecap: round; stroke-dasharray: 1000; stroke-dashoffset: 1000; }
 .tl-mover { opacity: 0; transition: opacity .35s ease; }
 .tl-item {
-  position: absolute; width: 25%;
+  position: absolute; width: 30%;
   display: flex; flex-direction: column; align-items: center; text-align: center;
   opacity: 0; transform: translate(-50%, 12px);
   transition: opacity .9s ease, transform .9s ease;
 }
 .tl-item.is-in { opacity: 1; transform: translate(-50%, 0); }
-.tl-icon { width: 100%; height: min(15vw, 58px); display: flex; align-items: flex-end; justify-content: center; }
+.tl-icon { width: 100%; height: min(20vw, 80px); display: flex; align-items: flex-end; justify-content: center; }
 .tl-icon img { max-width: 90%; max-height: 100%; display: block; }
-.tl-icon-wide img { max-height: 84%; } /* the table scene is wider, so it reads heavier at full height */
-.tl-year { margin-top: 4px; font-family: 'Oranienbaum', serif; font-size: min(6.4vw, 26px); line-height: 1; }
-.tl-label { margin-top: 4px; font-family: 'Poppins', sans-serif; font-size: min(3.2vw, 13px); line-height: 1.2; white-space: nowrap; }
+.tl-year { margin-top: 4px; font-family: 'Oranienbaum', serif; font-size: min(7.4vw, 30px); line-height: 1; }
+.tl-label { margin-top: 4px; font-family: 'Poppins', sans-serif; font-size: min(3.6vw, 14px); line-height: 1.2; white-space: nowrap; }
 
 /* ---------- 04 Save the Date ---------- */
 .save {
